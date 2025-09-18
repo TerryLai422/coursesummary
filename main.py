@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from extract_pdf import extract, save_text_to_file
 import uvicorn
+import os
 
 app = FastAPI()
 
@@ -17,6 +19,26 @@ def create_item(item: Item):
     data = item.dict()
     if item.tax is not None:
         data["total_price"] = item.price + item.tax
+    return data
+
+class Info(BaseModel):
+    filename: str
+
+@app.post("/extract-pdf/")
+def extract_pdf(info: Info):
+    try:
+        text = extract(info.filename)
+        # Step 1: Get "COMP2401_Ch1_SystemsProgramming.pdf"
+        base_name = os.path.basename(info.filename)
+
+        # Step 2: Split into ("COMP2401_Ch1_SystemsProgramming", ".pdf") and take [0]
+        file_name_without_ext = os.path.splitext(base_name)[0]
+
+        print(text)
+        save_text_to_file(text, file_name_without_ext + ".txt")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    data = info.dict()
     return data
 
 if __name__ == "__main__":
