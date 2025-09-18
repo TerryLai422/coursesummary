@@ -7,7 +7,7 @@ import os
 warnings.filterwarnings("ignore", category=FutureWarning, module="torch.nn.modules.module")
 # === Document Extraction and Chunking ===
 
-def extract(file_path):
+def extract(file_path: str) -> str:
     """
     Extracts and splits text from a file (PDF, TXT, DOCX) into manageable chunks for summarization.
     Also extracts code blocks and image/graph references for inclusion in summary metadata.
@@ -30,7 +30,10 @@ def extract(file_path):
 
     return text_content
 
-
+def save_text_to_file(text: str, output_path: str):
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(text)
+        
 # Prompt user for document to summarize
 file_path = "/Users/admin/ws-2024/coursesummarizer/documents/COMP2401_Ch1_SystemsProgramming.pdf" 
 
