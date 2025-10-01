@@ -38,7 +38,12 @@ def extract_content(req: SummarizeRequest):
         print(f"[DEBUG] Requested input file: {full_file_path}")
         texts = extract(full_file_path)
         print(f"[DEBUG] Extracted text chunks: {len(texts)}")
-
+        
+        base_name = os.path.basename(full_file_path)
+        file_name_without_ext = os.path.splitext(base_name)[0]
+        output_full_file_path = get_full_file_path(f"{file_name_without_ext}_deepseek_summary.txt", "output")
+        
+        print(f"OUTPUT PATH: {output_full_file_path}") 
         data = req.dict()
         data["full_file_path"] = full_file_path
         return data
@@ -65,14 +70,14 @@ def summarize_and_save_endpoint(req: SummarizeRequest):
         summary = summarize_document_with_kmeans_clustering(texts, llm, embeddings, num_clusters=req.num_clusters)
         print(f"[DEBUG] Summary length: {len(summary)}")
 
-        # Save summary to its own file
-        base_name = os.path.basename(req.txt_path)
+        # Save summary to its own file        
+        base_name = os.path.basename(full_file_path)
         file_name_without_ext = os.path.splitext(base_name)[0]
-        output_file = req.output_file or f"{file_name_without_ext}_summary.txt"
-        with open(output_file, "w", encoding="utf-8") as f:
+        output_full_file_path = get_full_file_path(f"{file_name_without_ext}_summary.txt", "output")
+        with open(output_full_file_path, "w", encoding="utf-8") as f:
             f.write(summary)
 
-        return SummarizeResponse(summary=summary, output_file=output_file)
+        return SummarizeResponse(summary=summary, output_file=output_full_file_path)
     except Exception as e:
         import traceback
         print(f"[ERROR] Exception in summarize_and_save_endpoint: {e}")
@@ -97,13 +102,13 @@ def summarize_deepseek_endpoint(req: SummarizeRequest):
         print(f"[DEBUG] Summary length: {len(summary)}")
 
         # Save summary to its own file
-        base_name = os.path.basename(req.file_path)
+        base_name = os.path.basename(full_file_path)
         file_name_without_ext = os.path.splitext(base_name)[0]
-        output_file = req.output_file or f"{file_name_without_ext}_deepseek_summary.txt"
-        with open(output_file, "w", encoding="utf-8") as f:
+        output_full_file_path = get_full_file_path(f"{file_name_without_ext}_deepseek_summary.txt", "output")
+        with open(output_full_file_path, "w", encoding="utf-8") as f:
             f.write(summary)
 
-        return SummarizeResponse(summary=summary, output_file=output_file)
+        return SummarizeResponse(summary=summary, output_file=output_full_file_path)
     except Exception as e:
         import traceback
         print(f"[ERROR] Exception in summarize_deepseek_endpoint: {e}")
@@ -146,13 +151,13 @@ def summarize_llm_endpoint(req: SummarizeRequest):
         summary = summarize_document_with_kmeans_clustering(texts, llm, embeddings, num_clusters=req.num_clusters)
         print(f"[DEBUG] Summary length: {len(summary)}")
 
-        base_name = os.path.basename(req.file_path)
+        base_name = os.path.basename(full_file_path)
         file_name_without_ext = os.path.splitext(base_name)[0]
-        output_file = req.output_file or f"{file_name_without_ext}_{req.model}_summary.txt"
-        with open(output_file, "w", encoding="utf-8") as f:
+        output_full_file_path = get_full_file_path(f"{file_name_without_ext}_summary.txt", "output")
+        with open(output_full_file_path, "w", encoding="utf-8") as f:
             f.write(summary)
 
-        return SummarizeResponse(summary=summary, output_file=output_file)
+        return SummarizeResponse(summary=summary, output_file=output_full_file_path)
     except Exception as e:
         import traceback
         print(f"[ERROR] Exception in summarize_llm_endpoint: {e}")
@@ -183,13 +188,13 @@ def summarize_openai_endpoint(req: SummarizeRequest):
         summary = summarize_document_with_kmeans_clustering(texts, llm, embeddings, num_clusters=req.num_clusters)
         print(f"[DEBUG] Summary length: {len(summary)}")
 
-        base_name = os.path.basename(req.file_path)
+        base_name = os.path.basename(full_file_path)
         file_name_without_ext = os.path.splitext(base_name)[0]
-        output_file = req.output_file or f"{file_name_without_ext}_openai_summary.txt"
-        with open(output_file, "w", encoding="utf-8") as f:
+        output_full_file_path = get_full_file_path(f"{file_name_without_ext}_openai_summary.txt", "output")
+        with open(output_full_file_path, "w", encoding="utf-8") as f:
             f.write(summary)
 
-        return SummarizeResponse(summary=summary, output_file=output_file)
+        return SummarizeResponse(summary=summary, output_file=output_full_file_path)
     except Exception as e:
         import traceback
         print(f"[ERROR] Exception in summarize_openai_endpoint: {e}")
